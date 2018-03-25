@@ -1,27 +1,34 @@
-import {Component, OnInit} from '@angular/core';
-import {GoogleBooksService} from "../shared/google-books.service";
-import {Book} from "../shared/book";
-import {Router, ActivatedRoute} from "@angular/router";
+import { Component, OnInit } from "@angular/core";
+import { GoogleBooksService } from "../shared/google-books.service";
+import { Book } from "../shared/book";
+import { Router, ActivatedRoute } from "@angular/router";
 
 @Component({
-  selector: 'app-search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.css']
+  selector: "app-search",
+  templateUrl: "./search.component.html",
+  styleUrls: ["./search.component.css"]
 })
 export class SearchComponent implements OnInit {
+  private term: string = " ";
 
-  constructor() {
+  constructor(private router: Router,
+    private route: ActivatedRoute,
+    private googleBooksService: GoogleBooksService) {
+    this.route.params.subscribe(params => {
+      if(params['term']){
+        this.term = params['term'];
+        this.onSearch(this.term);
+      }
+    });
   }
 
   doSearch() {
-    //TODO
+    this.router.navigate(["search", { term: this.term }]);
   }
 
   onSearch(term: string) {
-    //TODO
+    this.googleBooksService.searchBooks(term);
   }
 
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }
