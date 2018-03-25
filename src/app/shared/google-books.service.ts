@@ -1,14 +1,14 @@
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/toPromise';
-import {Injectable} from '@angular/core';
-import {Http} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
-import {Book} from './book';
+import "rxjs/add/operator/map";
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/toPromise";
+import { Injectable } from "@angular/core";
+import { Http } from "@angular/http";
+import { Observable } from "rxjs/Observable";
+import { Book } from "./book";
 
 @Injectable()
 export class GoogleBooksService {
-  private API_PATH: string = 'https://www.googleapis.com/books/v1/volumes';
+  private API_PATH: string = "https://www.googleapis.com/books/v1/volumes";
   public loading: boolean = false;
   public initialised: boolean = false;
   public totalItems: number = 0;
@@ -17,9 +17,7 @@ export class GoogleBooksService {
   public query: string = "";
   public books: Book[];
 
-
-  constructor(private http: Http) {
-  }
+  constructor(private http: Http) {}
 
   get startIndex() {
     return this.page * this.pageSize;
@@ -45,13 +43,17 @@ export class GoogleBooksService {
     }
   }
 
-
   public searchBooks(queryTitle: string) {
     this.query = queryTitle;
     this.loading = true;
     this.initialised = true;
     this.books = [];
-    this.http.get(`${this.API_PATH}?q=${this.query}&maxResults=${this.pageSize}&startIndex=${this.startIndex}`)
+    this.http
+      .get(
+        `${this.API_PATH}?q=${this.query}&maxResults=${
+          this.pageSize
+        }&startIndex=${this.startIndex}`
+      )
       .map(res => res.json())
       .do(data => {
         this.totalItems = data.totalItems;
@@ -60,17 +62,18 @@ export class GoogleBooksService {
         return data.items ? data.items : [];
       })
       .map(items => {
-        return items.map(item => this.bookFactory(item))
+        return items.map(item => this.bookFactory(item));
       })
       // .do(books => console.log(books))
-      .do(_ => this.loading = false)
-      .subscribe((books) => this.books = books)
+      .do(_ => (this.loading = false))
+      .subscribe(books => (this.books = books));
   }
 
   retrieveBook(bookId: string) {
-    return this.http.get(`${this.API_PATH}/${bookId}`)
-    .map(res => res.json())
-    .map(item => this.bookFactory(item));
+    return this.http
+      .get(`${this.API_PATH}/${bookId}`)
+      .map(res => res.json())
+      .map(item => this.bookFactory(item));
   }
 
   private bookFactory(item: any): Book {
@@ -82,9 +85,16 @@ export class GoogleBooksService {
       item.volumeInfo.publisher,
       item.volumeInfo.publishedDate,
       item.volumeInfo.description,
-      item.volumeInfo.categories ? item.volumeInfo.categories.map((item) => item.split("/").pop().trim()) : ['N/A'],
-      item.volumeInfo.imageLinks.thumbnail,
-      item.volumeInfo.imageLinks.smallThumbnail
-    )
+      item.volumeInfo.categories
+        ? item.volumeInfo.categories.map(item =>
+            item
+              .split("/")
+              .pop()
+              .trim()
+          )
+        : ["N/A"],
+      item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : "",
+      item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.smallThumbnail: ""
+    );
   }
 }
